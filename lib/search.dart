@@ -3,51 +3,68 @@ import 'package:provider/provider.dart';
 import 'dart:math';
 import 'dart:ui';
 import 'playingNow.dart';
-import 'addToPlaylist.dart';
 import 'musicPlayerManager.dart';
-import 'playlistManager.dart';
+import 'main.dart' as main_lib;
 
-class PlaylistDetailScreen extends StatefulWidget {
-  final PlaylistData playlist;
-
-  const PlaylistDetailScreen({
-    Key? key,
-    required this.playlist,
-  }) : super(key: key);
+class SearchScreen extends StatefulWidget {
+  const SearchScreen({super.key});
 
   @override
-  State<PlaylistDetailScreen> createState() => _PlaylistDetailScreenState();
+  State<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _PlaylistDetailScreenState extends State<PlaylistDetailScreen>
+class _SearchScreenState extends State<SearchScreen>
     with TickerProviderStateMixin {
-  // Sample songs - in real app, these would come from playlist.songIds
-  List<Song> songs = [
-    Song(id: 1, title: 'Midnight Dreams', artist: 'Luna Bay'),
-    Song(id: 2, title: 'Electric Soul', artist: 'The Vibes'),
-    Song(id: 3, title: 'Neon Lights', artist: 'City Waves'),
-    Song(id: 4, title: 'Ocean Drive', artist: 'Summer Nights'),
-    Song(id: 5, title: 'Starlight', artist: 'Echo Park'),
+  final TextEditingController _searchController = TextEditingController();
+  List<Song> _searchResults = [];
+  
+  // All available songs to search from
+  final List<Song> _allSongs = [
+    Song(id: 1, title: 'Summer Breeze', artist: 'The Waves'),
+    Song(id: 2, title: 'Digital Dreams', artist: 'Neon Pulse'),
+    Song(id: 3, title: 'Midnight City', artist: 'Urban Echo'),
+    Song(id: 4, title: 'Sunset Boulevard', artist: 'Coast Drive'),
+    Song(id: 5, title: 'Electric Highway', artist: 'Synth Masters'),
+    Song(id: 6, title: 'Crystal Rain', artist: 'Ambient Flow'),
+    Song(id: 7, title: 'Golden Hour', artist: 'Luna Sound'),
+    Song(id: 8, title: 'Midnight Dreams', artist: 'Luna Bay'),
+    Song(id: 9, title: 'Electric Soul', artist: 'The Vibes'),
+    Song(id: 10, title: 'Neon Lights', artist: 'City Waves'),
+    Song(id: 11, title: 'Ocean Drive', artist: 'Summer Nights'),
+    Song(id: 12, title: 'Starlight', artist: 'Echo Park'),
   ];
 
-  void _removeSongFromPlaylist(int songId) {
-    final playlistManager = Provider.of<PlaylistManager>(context, listen: false);
-    playlistManager.removeSongFromPlaylist(widget.playlist.id, songId);
-    
-    setState(() {
-      songs.removeWhere((s) => s.id == songId);
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Song removed from playlist'),
-        backgroundColor: Color(0xFFff4444),
-        duration: Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchChanged);
   }
 
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    final query = _searchController.text.toLowerCase();
+    
+    if (query.isEmpty) {
+      setState(() {
+        _searchResults = [];
+      });
+      return;
+    }
+
+    setState(() {
+      _searchResults = _allSongs.where((song) {
+        final titleMatch = song.title.toLowerCase().contains(query);
+        final artistMatch = song.artist.toLowerCase().contains(query);
+        return titleMatch || artistMatch;
+      }).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,127 +77,147 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen>
             colors: [Color(0xFF000000), Color(0xFF0a0a0a), Color(0xFF000000)],
           ),
         ),
-        child: Consumer<MusicPlayerManager>(
-          builder: (context, musicPlayer, child) {
-            return Column(
-              children: [
-                _buildAppBar(),
-                _buildHeader(),
-                Expanded(
-                  child: songs.isEmpty ? _buildEmptyState() : _buildSongList(musicPlayer),
-                ),
-                if (musicPlayer.currentSong != null) _buildBottomPlayer(),
-              ],
-            );
-          },
+        child: SafeArea(
+          child: Consumer<MusicPlayerManager>(
+            builder: (context, musicPlayer, child) {
+              return Column(
+                children: [
+                  _buildAppBar(),
+                  _buildSearchField(),
+                  Expanded(
+                    child: _buildSearchResults(),
+                  ),
+                  if (musicPlayer.currentSong != null) _buildBottomPlayer(),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
   }
 
   Widget _buildAppBar() {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1a1a1a),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFF2a2a2a)),
-                ),
-                child: const Icon(
-                  Icons.arrow_back,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
-            ),
-            const Spacer(),
-            IconButton(
-              icon: const Icon(Icons.shuffle_rounded, color: Color(0xFF1c995d), size: 28),
-              onPressed: () {
-                setState(() {
-                  songs.shuffle();
-                });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Songs shuffled'),
-                    duration: Duration(seconds: 1),
-                    backgroundColor: Color(0xFF1c995d),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Color(0xFF1a1a1a))),
       ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
-      child: Column(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
+            onPressed: () => Navigator.pop(context),
+          ),
           Container(
-            width: 120,
-            height: 120,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF1c995d), Color(0xFF0c7248)],
-              ),
+              color: const Color(0xFF1a1a1a),
               borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF1c995d).withOpacity(0.3),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
+              border: Border.all(color: const Color(0xFF2a2a2a)),
+            ),
+            child: Row(
+              children: [
+                CustomPaint(
+                  size: const Size(20, 20),
+                  painter: main_lib.AmpIconPainter(),
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'amp',
+                  style: TextStyle(
+                    color: Color(0xFF1c995d),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
-            child: Icon(widget.playlist.icon, color: Colors.white, size: 64),
           ),
-          const SizedBox(height: 20),
-          Text(
-            widget.playlist.name,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '${songs.length} song${songs.length != 1 ? 's' : ''}',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.6),
-              fontSize: 14,
-            ),
-          ),
+          const SizedBox(width: 48), // Balance the back button
         ],
       ),
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildSearchField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: TextField(
+        controller: _searchController,
+        autofocus: true,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          hintText: 'Search songs or artists...',
+          hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+          prefixIcon: const Icon(Icons.search, color: Color(0xFF1c995d)),
+          suffixIcon: _searchController.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear, color: Colors.grey),
+                  onPressed: () {
+                    _searchController.clear();
+                  },
+                )
+              : null,
+          filled: true,
+          fillColor: const Color(0xFF1a1a1a),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF1c995d), width: 2),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchResults() {
+    if (_searchController.text.isEmpty) {
+      return _buildEmptyState(
+        icon: Icons.search_rounded,
+        title: 'Search for music',
+        subtitle: 'Find your favorite songs and artists',
+      );
+    }
+
+    if (_searchResults.isEmpty) {
+      return _buildEmptyState(
+        icon: Icons.music_off_rounded,
+        title: 'No results found',
+        subtitle: 'Try searching with different keywords',
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      itemCount: _searchResults.length,
+      itemBuilder: (context, index) {
+        return _buildSongCard(_searchResults[index]);
+      },
+    );
+  }
+
+  Widget _buildEmptyState({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.music_note_rounded,
+            icon,
             size: 80,
             color: Colors.white.withOpacity(0.3),
           ),
           const SizedBox(height: 24),
           Text(
-            'No Songs in This Playlist',
+            title,
             style: TextStyle(
               color: Colors.white.withOpacity(0.7),
               fontSize: 18,
@@ -189,7 +226,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen>
           ),
           const SizedBox(height: 8),
           Text(
-            'Add songs to get started',
+            subtitle,
             style: TextStyle(
               color: Colors.white.withOpacity(0.5),
               fontSize: 14,
@@ -200,23 +237,15 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen>
     );
   }
 
-  Widget _buildSongList(MusicPlayerManager musicPlayer) {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // matched to library.dart
-      itemCount: songs.length,
-      itemBuilder: (context, index) {
-        return _buildSongCard(songs[index], musicPlayer);
-      },
-    );
-  }
-
-  Widget _buildSongCard(Song song, MusicPlayerManager musicPlayer) {
+  Widget _buildSongCard(Song song) {
     return Consumer<MusicPlayerManager>(
       builder: (context, musicPlayer, child) {
-        final bool isCurrentSong = musicPlayer.currentSong?.id == song.id;
+        bool isCurrentSong = musicPlayer.currentSong?.id == song.id;
 
         return InkWell(
-          onTap: () => musicPlayer.playSong(song),
+          onTap: () {
+            musicPlayer.playSong(song);
+          },
           child: Container(
             padding: const EdgeInsets.all(8),
             margin: const EdgeInsets.only(bottom: 4),
@@ -228,7 +257,6 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen>
             ),
             child: Row(
               children: [
-                // Album Art (always icon; no visualizer inside)
                 Container(
                   width: 48,
                   height: 48,
@@ -245,7 +273,6 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen>
                   ),
                 ),
                 const SizedBox(width: 12),
-                // Song Info
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,56 +298,8 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen>
                     ],
                   ),
                 ),
-                // Visualizer (to the right) and menu (PopupMenuButton like library)
-                Row(
-                  children: [
-                    if (isCurrentSong && musicPlayer.isPlaying)
-                      Visualizer(isPlaying: musicPlayer.isPlaying),
-                    const SizedBox(width: 8),
-                    PopupMenuButton<String>(
-                      icon: const Icon(Icons.more_vert, color: Colors.grey),
-                      color: const Color(0xFF1a1a1a),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        side: const BorderSide(color: Color(0xFF2a2a2a)),
-                      ),
-                      onSelected: (value) {
-                        if (value == 'remove') {
-                          _removeSongFromPlaylist(song.id);
-                        } else if (value == 'add') {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AddToPlaylistScreen(song: song),
-                            ),
-                          );
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        const PopupMenuItem(
-                          value: 'add',
-                          child: Row(
-                            children: [
-                              Icon(Icons.add, color: Color(0xFF41c08b), size: 18),
-                              SizedBox(width: 12),
-                              Text('Add to Playlist', style: TextStyle(color: Colors.white, fontSize: 14)),
-                            ],
-                          ),
-                        ),
-                        const PopupMenuItem(
-                          value: 'remove',
-                          child: Row(
-                            children: [
-                              Icon(Icons.delete, color: Color(0xFFff4444), size: 18),
-                              SizedBox(width: 12),
-                              Text('Remove', style: TextStyle(color: Colors.white, fontSize: 14)),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                if (isCurrentSong && musicPlayer.isPlaying)
+                  Visualizer(isPlaying: musicPlayer.isPlaying),
               ],
             ),
           ),
@@ -480,7 +459,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen>
 class Visualizer extends StatefulWidget {
   final bool isPlaying;
 
-  const Visualizer({Key? key, required this.isPlaying}) : super(key: key);
+  const Visualizer({super.key, required this.isPlaying});
 
   @override
   State<Visualizer> createState() => _VisualizerState();

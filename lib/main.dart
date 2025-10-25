@@ -5,6 +5,7 @@ import 'favorites.dart';
 import 'library.dart';
 import 'playlistManager.dart';
 import 'musicPlayerManager.dart';
+import 'search.dart';
 
 void main() {
   runApp(const MusicPlayerApp());
@@ -123,7 +124,17 @@ class _MainNavigatorState extends State<MainNavigator> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Icon(Icons.search, color: Colors.white, size: 24),
+          IconButton(
+            icon: const Icon(Icons.search, color: Colors.white, size: 24),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SearchScreen(),
+                ),
+              );
+            },
+          ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(

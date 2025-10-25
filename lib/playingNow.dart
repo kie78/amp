@@ -125,52 +125,39 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Color(0xFF1a1a1a))),
+      ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1a1a1a),
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFF2a2a2a)),
-              ),
-              child: const Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-                size: 24,
-              ),
+          IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
+            onPressed: () => Navigator.pop(context),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1a1a1a),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFF2a2a2a)),
+            ),
+            child: Row(
+              children: [
+                _buildAmpIcon(),
+                const SizedBox(width: 8),
+                const Text(
+                  'amp',
+                  style: TextStyle(
+                    color: Color(0xFF1c995d),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ),
-          Expanded(
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1a1a1a),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFF2a2a2a)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _buildAmpIcon(),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Amp',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 48),
+          const SizedBox(width: 48), // Balance the back button
         ],
       ),
     );
