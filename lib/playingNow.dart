@@ -16,7 +16,7 @@ class Song {
 }
 
 class NowPlayingScreen extends StatefulWidget {
-  const NowPlayingScreen({Key? key}) : super(key: key);
+  const NowPlayingScreen({super.key});
 
   @override
   State<NowPlayingScreen> createState() => _NowPlayingScreenState();
@@ -144,10 +144,20 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
             ),
             child: Row(
               children: [
-                _buildAmpIcon(),
+                ColorFiltered(
+                  colorFilter: const ColorFilter.mode(
+                    Color(0xFF1c995d),
+                    BlendMode.srcIn,
+                  ),
+                  child: Image.asset(
+                    'images/aurio.png',
+                    width: 20,
+                    height: 20,
+                  ),
+                ),
                 const SizedBox(width: 8),
                 const Text(
-                  'amp',
+                  'Aurio',
                   style: TextStyle(
                     color: Color(0xFF1c995d),
                     fontSize: 16,
@@ -160,13 +170,6 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
           const SizedBox(width: 48), // Balance the back button
         ],
       ),
-    );
-  }
-
-  Widget _buildAmpIcon() {
-    return CustomPaint(
-      size: const Size(20, 20),
-      painter: AmpIconPainter(),
     );
   }
 

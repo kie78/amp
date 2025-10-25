@@ -4,7 +4,6 @@ import 'dart:math';
 import 'dart:ui';
 import 'playingNow.dart';
 import 'musicPlayerManager.dart';
-import 'main.dart' as main_lib;
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -119,13 +118,20 @@ class _SearchScreenState extends State<SearchScreen>
             ),
             child: Row(
               children: [
-                CustomPaint(
-                  size: const Size(20, 20),
-                  painter: main_lib.AmpIconPainter(),
+                ColorFiltered(
+                  colorFilter: const ColorFilter.mode(
+                    Color(0xFF1c995d),
+                    BlendMode.srcIn,
+                  ),
+                  child: Image.asset(
+                    'images/aurio.png',
+                    width: 20,
+                    height: 20,
+                  ),
                 ),
                 const SizedBox(width: 8),
                 const Text(
-                  'amp',
+                  'Aurio',
                   style: TextStyle(
                     color: Color(0xFF1c995d),
                     fontSize: 16,

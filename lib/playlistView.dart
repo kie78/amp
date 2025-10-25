@@ -12,9 +12,9 @@ class PlaylistDetailScreen extends StatefulWidget {
   final PlaylistData playlist;
 
   const PlaylistDetailScreen({
-    Key? key,
+    super.key,
     required this.playlist,
-  }) : super(key: key);
+  });
 
   @override
   State<PlaylistDetailScreen> createState() => _PlaylistDetailScreenState();
@@ -582,7 +582,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen>
 class Visualizer extends StatefulWidget {
   final bool isPlaying;
 
-  const Visualizer({Key? key, required this.isPlaying}) : super(key: key);
+  const Visualizer({super.key, required this.isPlaying});
 
   @override
   State<Visualizer> createState() => _VisualizerState();

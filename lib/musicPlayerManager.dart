@@ -6,7 +6,7 @@ class MusicPlayerManager extends ChangeNotifier {
   Song? _currentSong;
   bool _isPlaying = false;
   double _currentPosition = 0.0;
-  double _duration = 219.0;
+  final double _duration = 219.0;
   bool _isFavorite = false;
   bool _isShuffleOn = false;
   Timer? _timer;

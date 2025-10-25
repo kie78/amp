@@ -8,10 +8,10 @@ class AddToPlaylistScreen extends StatefulWidget {
   final Function(String playlistId, Song song)? onAddToPlaylist;
 
   const AddToPlaylistScreen({
-    Key? key,
+    super.key,
     required this.song,
     this.onAddToPlaylist,
-  }) : super(key: key);
+  });
 
   @override
   State<AddToPlaylistScreen> createState() => _AddToPlaylistScreenState();

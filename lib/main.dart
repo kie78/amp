@@ -22,7 +22,7 @@ class MusicPlayerApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => MusicPlayerManager()),
       ],
       child: MaterialApp(
-        title: 'Music Player',
+        title: 'Aurio',
         theme: ThemeData(
           brightness: Brightness.dark,
           scaffoldBackgroundColor: Colors.black,
@@ -144,10 +144,20 @@ class _MainNavigatorState extends State<MainNavigator> {
             ),
             child: Row(
               children: [
-                _buildAmpIcon(),
+                ColorFiltered(
+                  colorFilter: const ColorFilter.mode(
+                    Color(0xFF1c995d),
+                    BlendMode.srcIn,
+                  ),
+                  child: Image.asset(
+                    'images/aurio.png',
+                    width: 20,
+                    height: 20,
+                  ),
+                ),
                 const SizedBox(width: 8),
                 const Text(
-                  'amp',
+                  'Aurio',
                   style: TextStyle(
                     color: Color(0xFF1c995d),
                     fontSize: 16,
@@ -182,13 +192,6 @@ class _MainNavigatorState extends State<MainNavigator> {
                       : const SizedBox(width: 48),
         ],
       ),
-    );
-  }
-
-  Widget _buildAmpIcon() {
-    return CustomPaint(
-      size: const Size(20, 20),
-      painter: AmpIconPainter(),
     );
   }
 

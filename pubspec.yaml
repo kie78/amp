@@ -1,5 +1,5 @@
 name: amp
-description: "A new Flutter project."
+description: "Aurio - A modern music player."
 publish_to: 'none'
 version: 0.1.0
 
@@ -11,6 +11,7 @@ dependencies:
     sdk: flutter
   provider: ^6.1.1
   share_plus: ^10.1.2
+  flutter_launcher_icons: ^0.14.1
 
 dev_dependencies:
   flutter_test:
@@ -19,3 +20,16 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  
+  assets:
+    - images/aurio.png
+    - images/aurio_padded.png
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "images/aurio_padded.png"
+  remove_alpha_ios: true
+  min_sdk_android: 21
+  adaptive_icon_background: "#000000"
+  adaptive_icon_foreground: "images/aurio_padded.png"
